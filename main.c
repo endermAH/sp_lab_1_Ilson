@@ -7,15 +7,15 @@
 #include <math.h>
 
 const char *boolValues[2] = {"false", "true"};
-const char *optString = "x:n:lh";
+const char *optString = "k:cdh";
 
 char *outputString = NULL;
 int endOfOutputString = 0;
 
 struct globalArgs_t {
-  bool stringNumbers;
-  int minLength;
-  int maxLength;
+  bool optionEncode;
+  bool optionDecode;
+  char* key;
   char* inputPath;
   char* outputPath;
   FILE* inputFile;
@@ -28,7 +28,7 @@ void addCharToOutput(char target_char) {
   outputString[endOfOutputString-1] = target_char;
 }
 
-char* getSentence(int *stringNumber) {
+/*char* getSentence(int *stringNumber) {
   char *sentence = NULL; //Строка для обработки
   char *tooutput = NULL; //Строка для вывода
   int i = 1, oi = 1;
@@ -99,11 +99,11 @@ char* getSentence(int *stringNumber) {
 
   if (!feof(globalArgs.inputFile)) getSentence(stringNumber);
   return sentence;
-}
+}*/
 
 void display_usage(char* name) {
   //Отображение странички с помощью
-  printf("\nUSAGE:\n%s [-h] [-n <length>] [-x: <length>] [-l] [-I <path>] [-O <path>]\n\nARGS: \n-n: Min palindrome length \n-x: Max palindrome length\n-l: Enable string numeration\n-h: Help\n\n", name);
+  printf("\nUSAGE:\n%s [-h] [-k <key word>] [-d] [-c] \n\nARGS: \n-k: Key word \n-c: Encoding\n-d: Decoding\n-h: Help\n\n", name);
   exit(EXIT_SUCCESS);
 }
 
@@ -114,14 +114,14 @@ int getStartData(int argc, char** argv) {
   opt = getopt(argc, argv, optString);
   while (opt != -1) {
     switch (opt) {
-      case 'x':
-        globalArgs.maxLength = atoi(optarg);
+      case 'k':
+        globalArgs.key = optarg;
         break;
-      case 'n':
-        globalArgs.minLength = atoi(optarg);
+      case 'd':
+        globalArgs.optionDecode = true;
         break;
-      case 'l':
-        globalArgs.stringNumbers = true;
+      case 'c':
+        globalArgs.optionEncode = true;
         break;
       case 'h':
         display_usage(argv[0]);
@@ -152,27 +152,27 @@ int getStartData(int argc, char** argv) {
   printf("\n"); */
 
   //Проверка на верно введенные данные
-  if (globalArgs.maxLength < 0) {
-    fprintf(stderr, "Incorrect max palindrome length!\n");
-    return 0;
+  if (globalArgs.optionDecode == globalArgs.optionEncode) {
+    fprintf(stderr, "Encode and Decode options are same!\n");
+    exit(EXIT_FAILURE);
   }
-  if (globalArgs.minLength < -2) {
-    fprintf(stderr, "Incorrect min palindrome length!\n");
-    return 0;
+  if (globalArgs.key == NULL) {
+    fprintf(stderr, "Can not run without key!\n");
+    exit(EXIT_FAILURE);
   }
-  if (globalArgs.minLength > globalArgs.maxLength && globalArgs.maxLength != 0) {
-    fprintf(stderr, "Min palindrome lengthh is geather tham max!\n");
-    return 0;
-  }
+  // if (globalArgs.minLength > globalArgs.maxLength && globalArgs.maxLength != 0) {
+  //   fprintf(stderr, "Min palindrome lengthh is geather tham max!\n");
+  //   return 0;
+  // }
   return 1;
 }
 
 int main(int argc, char** argv) {
 
   //Инициализация структуры
-  globalArgs.stringNumbers = false;
-  globalArgs.minLength = -1;
-  globalArgs.maxLength = 0;
+  globalArgs.optionEncode = false;
+  globalArgs.optionDecode = false;
+  globalArgs.key = NULL;
   globalArgs.inputPath = NULL;
   globalArgs.outputPath = NULL;
 
@@ -203,13 +203,13 @@ int main(int argc, char** argv) {
   char* sentence;
   int stringNumber = 1;
 
-  getSentence(&stringNumber);
+  //getSentence(&stringNumber);
 
-  if (endOfOutputString != 0) {
-    for (int i = 0; i <= endOfOutputString; i++) {
-      fprintf(globalArgs.outputFile, "%c", outputString[i]);
-    }
-  }
+  // if (endOfOutputString != 0) {
+  //   for (int i = 0; i <= endOfOutputString; i++) {
+  //     fprintf(globalArgs.outputFile, "%c", outputString[i]);
+  //   }
+  // }
 
   return 0;
 }
