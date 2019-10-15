@@ -101,6 +101,36 @@ void addCharToOutput(char target_char) {
   return sentence;
 }*/
 
+void startJob() {
+  char inChar;
+  char outChar;
+  int index = 0;
+  int len;
+  int n = 127 - 32 + 1;
+
+  len = strlen(globalArgs.key);
+
+  while (!feof(globalArgs.inputFile)){
+    fscanf(globalArgs.inputFile,"%c",&inChar);
+    if (globalArgs.optionEncode) {
+        if (inChar >= 32 && inChar <= 127){
+          outChar = (((inChar - 32) + (globalArgs.key[index] - 32)) % 96) + 32;
+          //printf("%d -> %d with %d\n", inChar, outChar, globalArgs.key[index]);
+          index++;
+          if (index == len) index = 0;
+        } else outChar = inChar;
+        addCharToOutput(outChar);
+    } else if (globalArgs.optionDecode) {
+      if (inChar >= 32 && inChar <= 127){
+        outChar = (((inChar - 32) - (globalArgs.key[index] - 32) + n) % n) + 32;
+        index++;
+        if (index == len) index = 0;
+      } else outChar = inChar;
+      addCharToOutput(outChar);
+    }
+  }
+}
+
 void display_usage(char* name) {
   //Отображение странички с помощью
   printf("\nUSAGE:\n%s [-h] [-k <key word>] [-d] [-c] \n\nARGS: \n-k: Key word \n-c: Encoding\n-d: Decoding\n-h: Help\n\n", name);
@@ -203,13 +233,15 @@ int main(int argc, char** argv) {
   char* sentence;
   int stringNumber = 1;
 
+  startJob();
   //getSentence(&stringNumber);
 
-  // if (endOfOutputString != 0) {
-  //   for (int i = 0; i <= endOfOutputString; i++) {
-  //     fprintf(globalArgs.outputFile, "%c", outputString[i]);
-  //   }
-  // }
+
+  if (endOfOutputString != 0) {
+    for (int i = 0; i <= endOfOutputString; i++) {
+      fprintf(globalArgs.outputFile, "%c", outputString[i]);
+    }
+  }
 
   return 0;
 }
